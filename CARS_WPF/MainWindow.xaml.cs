@@ -60,7 +60,7 @@ public partial class MainWindow : Window
         if (lbElso.SelectedItem != null)
         {
             string selectedProduct = lbElso.SelectedItem.ToString();
-            string productCode = selectedProduct.Split('-')[0].Trim(); // productCode kinyerése
+            string productCode = selectedProduct.Split('-')[0].Trim();
 
             string connectionString = "Server=localhost;Database=classicmodels;User ID=root;Password=";
 
