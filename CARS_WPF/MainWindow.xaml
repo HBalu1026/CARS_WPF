@@ -22,6 +22,12 @@
         <!-- 1.feladat -->
         <Label Content="1.Feladat"
                HorizontalAlignment="Center"/>
+        <ListBox x:Name="lbElso"
+                 Grid.Row="1"
+                 SelectionChanged="ElsoKivalaszt"/>
+        <Label x:Name="lblElso"
+               Grid.Row="2"
+               VerticalAlignment="Center"/>
         
         <!-- 2.feladat -->
         <Label Content="2.Feladat"
@@ -32,7 +38,7 @@
                   Grid.Row="1"
                   Width="150"
                   Height="30"
-                  SelectionChanged="cbMasodikKivalaszt"/>
+                  SelectionChanged="MasodikKivalaszt"/>
         <DataGrid x:Name="dgMasodik"
                   Grid.Column="1"
                   Grid.Row="2"/>
@@ -45,7 +51,6 @@
                   Grid.Column="2"
                   Grid.Row="1"
                   SelectionChanged="HarmadikKivalaszt"/>
-
         <ListBox x:Name="lbHarmadik"
                  Grid.Column="2"
                  Grid.Row="2"/>

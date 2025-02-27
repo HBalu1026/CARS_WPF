@@ -29,8 +29,65 @@ public partial class MainWindow : Window
 
     private void LoadElso()
     {
+        string connectionString = "Server=localhost;Database=classicmodels;User ID=root;Password=";
 
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            connection.Open();
+            string query = "SELECT productCode, productName FROM products ORDER BY productName;";
+
+            using (MySqlCommand command = new MySqlCommand(query, connection))
+            {
+                using (MySqlDataReader reader = command.ExecuteReader())
+                {
+                    List<string> products = new List<string>();
+
+                    while (reader.Read())
+                    {
+                        string productCode = reader["productCode"].ToString();
+                        string productName = reader["productName"].ToString();
+                        products.Add($"{productCode} - {productName}");
+                    }
+
+                    lbElso.ItemsSource = products;
+                }
+            }
+        }
     }
+
+    private void ElsoKivalaszt (object sender, SelectionChangedEventArgs e)
+    {
+        if (lbElso.SelectedItem != null)
+        {
+            string selectedProduct = lbElso.SelectedItem.ToString();
+            string productCode = selectedProduct.Split('-')[0].Trim(); // productCode kinyerése
+
+            string connectionString = "Server=localhost;Database=classicmodels;User ID=root;Password=";
+
+            using (MySqlConnection connection = new MySqlConnection(connectionString))
+            {
+                connection.Open();
+                string query = "SELECT COUNT(*) FROM orderdetails WHERE productCode = @productCode;";
+
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@productCode", productCode);
+                    int orderCount = Convert.ToInt32(command.ExecuteScalar());
+
+                    if (orderCount > 0)
+                    {
+                        lblElso.Content = $"Rendelések száma: {orderCount}";
+                    }
+                    else
+                    {
+                        MessageBox.Show("Erre a termékre jelenleg nincs rendelés!", "Nincs rendelés", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        lblElso.Content = "Rendelések száma: 0";
+                    }
+                }
+            }
+        }
+    }
+
 
     private void LoadMasodik()
     {
@@ -58,7 +115,7 @@ public partial class MainWindow : Window
         }
     }
 
-    private void cbMasodikKivalaszt(object sender, SelectionChangedEventArgs e)
+    private void MasodikKivalaszt(object sender, SelectionChangedEventArgs e)
     {
         if (cbMasodik.SelectedItem != null)
         {
@@ -67,32 +124,24 @@ public partial class MainWindow : Window
 
             using (MySqlConnection connection = new MySqlConnection(connectionString))
             {
-                try
-                {
-                    connection.Open();
-                    string query = "SELECT customerName, phone, city FROM customers WHERE country = @country;";
+                connection.Open();
+                string query = "SELECT customerName, phone, city FROM customers WHERE country = @country;";
 
-                    using (MySqlCommand command = new MySqlCommand(query, connection))
+                using (MySqlCommand command = new MySqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@country", selectedCountry);
+
+                    using (MySqlDataReader reader = command.ExecuteReader())
                     {
-                        command.Parameters.AddWithValue("@country", selectedCountry);
+                        DataTable dt = new DataTable();
+                        dt.Load(reader);
 
-                        using (MySqlDataReader reader = command.ExecuteReader())
-                        {
-                            DataTable dt = new DataTable();
-                            dt.Load(reader);
-
-                            dgMasodik.ItemsSource = dt.DefaultView; // DataGrid feltöltése
-                        }
+                        dgMasodik.ItemsSource = dt.DefaultView;
                     }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Hiba történt az ügyfelek betöltése közben: " + ex.Message);
                 }
             }
         }
     }
-
 
     private void LoadHarmadik()
     {
@@ -134,7 +183,7 @@ public partial class MainWindow : Window
                         {
                             string productName = reader["productName"].ToString();
                             decimal buyPrice = reader.GetDecimal("buyPrice");
-                            products.Add($"{productName} - {buyPrice:C}");
+                            products.Add($"{productName} - ${buyPrice}");
                         }
 
                         lbHarmadik.ItemsSource = products;
